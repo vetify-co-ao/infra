@@ -1,0 +1,59 @@
+# Configuration createad following the documentation:
+# - https://www.youtube.com/watch?v=MpovOI5eK58
+# - https://github.com/digitalocean/Kubernetes-Starter-Kit-Developers/tree/main/03-setup-ingress-controller
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vetify-ingress
+  namespace: vetify
+  annotations:
+    acme.cert-manager.io/http01-edit-in-place: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt"
+spec:
+  tls:
+    - hosts:
+        - vetify.co.ao
+        - "*.vetify.co.ao"
+      secretName: vetify-tls
+  rules:
+    - host: vetify.co.ao
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxy-svc
+                port:
+                  number: 80
+    - host: www.vetify.co.ao
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxy-svc
+                port:
+                  number: 80
+    - host: cloud.vetify.co.ao
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxy-svc
+                port:
+                  number: 80
+    - host: echo.vetify.co.ao
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: echo-svc
+                port:
+                  number: 80
+  ingressClassName: nginx

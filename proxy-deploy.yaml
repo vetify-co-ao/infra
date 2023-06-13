@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vetify-co-ao-conf-map
+  namespace: vetify
+data:
+  vetify.co.ao.conf: |
+    server {
+      server_name vetify.co.ao;
+      return 301 https://www.vetify.co.ao$request_uri;
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: www-vetify-co-ao-conf-map
+  namespace: vetify
+data:
+  www.vetify.co.ao.conf: |
+    server {        
+      server_name www.vetify.co.ao;
+
+      location / {
+        proxy_set_header  Host $host:$server_port;
+        proxy_set_header  X-Real-IP $remote_addr;
+        proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header  X-Forwarded-Proto $scheme;
+        proxy_pass        http://portal-svc:8080;
+        proxy_redirect    http:// https://;
+        proxy_intercept_errors on;
+
+        #error_page 404    https://$host/pt/404;
+
+        add_header        Pragma "no-cache";
+        add_header X-Frame-Options "DENY";
+        add_header Content-Security-Policy "frame-ancestors 'none'";
+        add_header X-Content-Type-Options "nosniff";
+      }
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxy
+  namespace: vetify
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proxy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: proxy
+    spec:
+      volumes:
+        - name: vetify-co-ao-conf
+          configMap:
+            name: vetify-co-ao-conf-map
+        - name: www-vetify-co-ao-conf
+          configMap:
+            name: www-vetify-co-ao-conf-map
+      containers:
+        - name: proxy
+          image: nginx
+          volumeMounts:
+            - name: vetify-co-ao-conf
+              mountPath: /etc/nginx/conf.d/vetify.co.ao.conf
+              subPath: vetify.co.ao.conf
+              readOnly: true
+            - name: www-vetify-co-ao-conf
+              mountPath: /etc/nginx/conf.d/www.vetify.co.ao.conf
+              subPath: www.vetify.co.ao.conf
+              readOnly: true
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 10m
+              memory: 40Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxy-svc
+  namespace: vetify
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  selector:
+    app: proxy

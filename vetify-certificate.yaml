@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vetify-cert
+  namespace: vetify
+spec:
+  secretName: vetify-tls
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+  dnsNames:
+    - vetify.co.ao
+    - cloud.vetify.co.ao
+    - www.vetify.co.ao
+    #- echo.vetify.co.ao
