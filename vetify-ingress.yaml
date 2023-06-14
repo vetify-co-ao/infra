@@ -46,6 +46,16 @@ spec:
                 name: proxy-svc
                 port:
                   number: 80
+    - host: sso.vetify.co.ao
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxy-svc
+                port:
+                  number: 80
     - host: echo.vetify.co.ao
       http:
         paths:

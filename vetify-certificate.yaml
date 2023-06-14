@@ -12,4 +12,5 @@ spec:
     - vetify.co.ao
     - cloud.vetify.co.ao
     - www.vetify.co.ao
-    #- echo.vetify.co.ao
+    - echo.vetify.co.ao
+    - sso.vetify.co.ao
