@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sso-config-file
+  namespace: vetify
+data:
+  sso.yaml: |
+    # Email configuration
+    email:
+      # Email server host
+      host: smtp.gmail.com
+
+      # Email server port
+      port: 587
+
+      # Username for email server authentication
+      username: comercial@vetify.co.ao      
+      passwordFilename: "/usr/local/etc/sso.key"
+
+      # Password for email server authentication
+      # From field in the email
+      emailFromField: noreply@vetify.co.ao
+      
+      # Subject template for the email
+      subjectTemplate: "A sua OTP para explorar o mundo da Vetify!"
+      
+      # Filename for the body template, should have a placeholder
+      # for OTP in the form ${OTP}
+      bodyTemplateFilename: "/usr/local/etc/email_body_template.html"
+
+    # Domain of the application
+    domain: vetify.co.ao
+
+    # Domain that users belong to
+    internalDomain: vetify.co.ao
+
+    # JSON Web Key filename for authentication
+    jwkFilename: "/usr/local/etc/jwk.json"
+
+    # Port on which the application will run
+    port: 8080
+
+    # Vendus API token for integration
+    vendusApiToken: "2a338aba6199909fe7ec6ccbc398e1a8"
